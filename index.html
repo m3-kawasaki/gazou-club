@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>画像処理同好会 | Image Processing Club</title>
+<meta name="description" content="技術系出身のシニアが集う画像処理同好会。写真加工・画像処理・PC相談・生成AIをテーマに、偶数月第1土曜14時よりZoomで例会を開催。">
+<link rel="stylesheet" href="style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Zen+Kaku+Gothic+New:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- ===== ヘッダー ===== -->
+<header class="site-header" id="siteHeader">
+  <div class="header-inner">
+    <a href="#top" class="logo">
+      <span class="logo-mark">IP</span>
+      <span class="logo-text">画像処理同好会</span>
+    </a>
+    <nav class="global-nav" id="globalNav">
+      <a href="#about">会について</a>
+      <a href="#meeting">例会案内</a>
+      <a href="#activities">活動テーマ</a>
+      <a href="#gallery">ギャラリー</a>
+      <a href="#join">入会案内</a>
+    </nav>
+    <button class="nav-toggle" id="navToggle" aria-label="メニューを開く" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<!-- ===== ヒーロー ===== -->
+<section class="hero" id="top">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="hero-content">
+    <p class="hero-eyebrow">IMAGE PROCESSING CLUB — EST. BY TECH VETERANS</p>
+    <h1 class="hero-title">
+      <span class="gradient-text">画像処理同好会</span>
+    </h1>
+    <p class="hero-lead">
+      写真・画像の加工から生成AIまで。<br>
+      技術好きのシニアが集い、学び合うオンライン同好会。
+    </p>
+    <div class="hero-buttons">
+      <a href="#meeting" class="btn btn-primary">次回の例会を見る</a>
+      <a href="#about" class="btn btn-ghost">会について知る</a>
+    </div>
+  </div>
+  <div class="scroll-indicator" aria-hidden="true">
+    <span>SCROLL</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<main>
+
+<!-- ===== 会について ===== -->
+<section class="section" id="about">
+  <div class="container">
+    <div class="section-head reveal">
+      <p class="section-eyebrow">ABOUT US</p>
+      <h2 class="section-title">会について</h2>
+    </div>
+    <div class="about-grid">
+      <div class="about-text reveal">
+        <p>
+          画像処理同好会は、主に<strong>技術系出身の企業OB</strong>が集まる小さな同好会です。
+          メンバーは60〜70歳代を中心に約10名、最高齢は80歳代。
+          現役時代に培った技術への好奇心を持ち寄り、写真や画像の世界を楽しんでいます。
+        </p>
+        <p>
+          例会のテーマは自由。写真のレタッチや画像処理の技法、PCにまつわる疑問の相談、
+          そして最近では<strong>生成AIの最新情報や作例の発表</strong>も増えてきました。
+          年齢を重ねても学ぶ楽しさは変わらない——それがこの会のモットーです。
+        </p>
+      </div>
+      <div class="stats reveal">
+        <div class="stat-card">
+          <div class="stat-number" data-count="10">0</div>
+          <div class="stat-label">会員数（名）</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" data-count="6">0</div>
+          <div class="stat-label">年間例会数（回）</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" data-count="60">0</div>
+          <div class="stat-label">年代 〜80代</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">Zoom</div>
+          <div class="stat-label">開催形式</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 例会案内 ===== -->
+<section class="section section-alt" id="meeting">
+  <div class="container">
+    <div class="section-head reveal">
+      <p class="section-eyebrow">NEXT MEETING</p>
+      <h2 class="section-title">例会のご案内</h2>
+    </div>
+    <div class="meeting-card reveal">
+      <div class="meeting-main">
+        <p class="meeting-label">次回例会</p>
+        <p class="meeting-date" id="nextMeetingDate">計算中…</p>
+        <p class="meeting-time">14:00 開始 ／ Zoomオンライン開催</p>
+        <div class="countdown" id="countdown" aria-live="polite">
+          <div class="count-unit"><span id="cdDays">--</span><small>日</small></div>
+          <div class="count-unit"><span id="cdHours">--</span><small>時間</small></div>
+          <div class="count-unit"><span id="cdMins">--</span><small>分</small></div>
+        </div>
+      </div>
+      <div class="meeting-info">
+        <h3>開催ルール</h3>
+        <ul class="info-list">
+          <li><strong>日程</strong>：偶数月の第1土曜日</li>
+          <li><strong>時間</strong>：14:00 〜（2時間程度）</li>
+          <li><strong>形式</strong>：Zoomオンライン</li>
+          <li><strong>テーマ</strong>：自由（写真加工・PC相談・生成AIなど）</li>
+        </ul>
+        <p class="info-note">Zoomの接続情報は会員メーリングリストでご案内します。</p>
+      </div>
+    </div>
+    <div class="schedule-strip reveal" id="scheduleStrip">
+      <!-- 年間スケジュールはJSで生成 -->
+    </div>
+  </div>
+</section>
+
+<!-- ===== 活動テーマ ===== -->
+<section class="section" id="activities">
+  <div class="container">
+    <div class="section-head reveal">
+      <p class="section-eyebrow">ACTIVITIES</p>
+      <h2 class="section-title">活動テーマ</h2>
+    </div>
+    <div class="cards-grid">
+      <article class="card reveal">
+        <div class="card-icon">📷</div>
+        <h3>写真・画像の加工</h3>
+        <p>レタッチ、合成、HDR、モノクロ表現など。各自の作品を持ち寄り、加工のテクニックや使用ソフトの情報を交換します。</p>
+        <div class="card-tags"><span>Photoshop</span><span>GIMP</span><span>RAW現像</span></div>
+      </article>
+      <article class="card reveal">
+        <div class="card-icon">🖥️</div>
+        <h3>PC・デジタル相談</h3>
+        <p>パソコンやソフトの「困った」をみんなで解決。OSの設定からハードの選び方まで、技術系OBならではの知見が集まります。</p>
+        <div class="card-tags"><span>Windows</span><span>周辺機器</span><span>トラブル解決</span></div>
+      </article>
+      <article class="card reveal">
+        <div class="card-icon">✨</div>
+        <h3>生成AIの研究</h3>
+        <p>画像生成AIやチャットAIの最新動向を共有し、作例を発表。プロンプトの工夫やツールの比較など、話題は尽きません。</p>
+        <div class="card-tags"><span>画像生成AI</span><span>ChatGPT / Claude</span><span>作例発表</span></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ギャラリー ===== -->
+<section class="section section-alt" id="gallery">
+  <div class="container">
+    <div class="section-head reveal">
+      <p class="section-eyebrow">GALLERY</p>
+      <h2 class="section-title">作品ギャラリー</h2>
+      <p class="section-desc">会員の作品・作例を展示しています。画像をクリックすると拡大表示されます。</p>
+    </div>
+    <div class="gallery-grid" id="galleryGrid">
+      <!-- 実際の作品画像に差し替える場合は、divをimgタグに置き換えてください -->
+      <figure class="gallery-item reveal" data-title="風景写真のHDR合成">
+        <div class="ph ph-1"></div>
+        <figcaption>風景写真のHDR合成</figcaption>
+      </figure>
+      <figure class="gallery-item reveal" data-title="モノクロ・レタッチ研究">
+        <div class="ph ph-2"></div>
+        <figcaption>モノクロ・レタッチ研究</figcaption>
+      </figure>
+      <figure class="gallery-item reveal" data-title="生成AIによる風景画">
+        <div class="ph ph-3"></div>
+        <figcaption>生成AIによる風景画</figcaption>
+      </figure>
+      <figure class="gallery-item reveal" data-title="マクロ撮影と画像合成">
+        <div class="ph ph-4"></div>
+        <figcaption>マクロ撮影と画像合成</figcaption>
+      </figure>
+      <figure class="gallery-item reveal" data-title="古い写真のデジタル修復">
+        <div class="ph ph-5"></div>
+        <figcaption>古い写真のデジタル修復</figcaption>
+      </figure>
+      <figure class="gallery-item reveal" data-title="AIプロンプト作例集">
+        <div class="ph ph-6"></div>
+        <figcaption>AIプロンプト作例集</figcaption>
+      </figure>
+    </div>
+    <p class="gallery-note reveal">※ 現在はサンプル表示です。index.html内のギャラリー部分を会員の作品画像（imgタグ）に差し替えてご利用ください。</p>
+  </div>
+</section>
+
+<!-- ===== 入会案内 ===== -->
+<section class="section" id="join">
+  <div class="container">
+    <div class="section-head reveal">
+      <p class="section-eyebrow">JOIN US</p>
+      <h2 class="section-title">入会のご案内</h2>
+    </div>
+    <div class="join-card reveal">
+      <p class="join-lead">
+        写真・画像・PC・AIに興味のある方なら、どなたでも歓迎です。<br>
+        「最近の技術についていきたい」「作品づくりを楽しみたい」——きっかけは何でも構いません。
+      </p>
+      <ul class="join-points">
+        <li>✅ 入会金・会費は無料（変更の場合は例会でご案内）</li>
+        <li>✅ Zoomが使えれば全国どこからでも参加可能</li>
+        <li>✅ 見学参加も歓迎します</li>
+      </ul>
+      <a class="btn btn-primary btn-large" href="mailto:info@example.com?subject=画像処理同好会への問い合わせ">メールで問い合わせる</a>
+      <p class="join-note">※ 連絡先メールアドレスはサイト公開時に実際のものへ変更してください。</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ===== フッター ===== -->
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <p class="footer-logo"><span class="logo-mark">IP</span> 画像処理同好会</p>
+    <p class="footer-copy">&copy; <span id="year"></span> Image Processing Club. All rights reserved.</p>
+  </div>
+</footer>
+
+<!-- ===== ライトボックス ===== -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="拡大表示">
+  <button class="lightbox-close" id="lightboxClose" aria-label="閉じる">×</button>
+  <div class="lightbox-body" id="lightboxBody"></div>
+  <p class="lightbox-caption" id="lightboxCaption"></p>
+</div>
+
+<!-- ===== トップへ戻る ===== -->
+<button class="to-top" id="toTop" aria-label="ページの先頭へ戻る">↑</button>
+
+<script src="script.js"></script>
+</body>
+</html>
