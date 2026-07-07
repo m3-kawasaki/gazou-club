@@ -98,7 +98,7 @@ setInterval(updateCountdown, 30000);
 /* ---------- 3. スクロール出現アニメーション ---------- */
 
 // グリッド内の要素に時間差をつけて、順番にふわっと現れるようにする
-document.querySelectorAll(".cards-grid, .stats, .gallery-grid, .compare-grid").forEach((grid) => {
+document.querySelectorAll(".cards-grid, .stats, .gallery-grid, .compare-grid, .voices-grid").forEach((grid) => {
   Array.from(grid.children).forEach((el, i) => {
     el.style.transitionDelay = `${Math.min(i * 0.1, 0.5)}s`;
   });
@@ -330,7 +330,7 @@ window.addEventListener("scroll", () => {
 })();
 
 /* ---------- 8. カードのマウス追従グロー ---------- */
-document.querySelectorAll(".card, .stat-card").forEach((el) => {
+document.querySelectorAll(".card, .stat-card, .voice-card").forEach((el) => {
   el.addEventListener("pointermove", (e) => {
     const rect = el.getBoundingClientRect();
     el.style.setProperty("--mx", `${e.clientX - rect.left}px`);
