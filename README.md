@@ -1,6 +1,12 @@
 # 画像処理同好会 公式サイト
 
-**公開ページ： https://m3-kawasaki.github.io/gazou-club/**
+▶ **[公開ページを開く](https://m3-kawasaki.github.io/gazou-club/)**
+
+公開ページのアドレス（手入力する場合）:
+
+```
+https://m3-kawasaki.github.io/gazou-club/
+```
 
 技術系出身のシニアが集う「画像処理同好会」の公式ウェブサイトです。
 写真加工・画像処理・PC相談・生成AIをテーマに、偶数月の第1土曜14時からZoomで例会を開催しています。
