@@ -1,15 +1,20 @@
 /* ============================================================
-   画像処理同好会 — script.js
+   画像処理同好会 — script.js v2
    主な機能:
    1. 次回例会日（偶数月・第1土曜・14時）の自動計算とカウントダウン
    2. 年間スケジュール表示
    3. スクロール出現アニメーション / 数字カウントアップ
-   4. ギャラリーのライトボックス
-   5. ヒーローの粒子アニメーション
-   6. モバイルメニュー / トップへ戻る
+   4. ビフォー/アフター比較スライダー
+   5. ギャラリーのライトボックス
+   6. ヒーローの粒子アニメーション（マウス連動）
+   7. ヘッダー演出・スクロール進捗・ナビ現在地ハイライト
+   8. カードのマウス追従グロー
+   9. モバイルメニュー / トップへ戻る
    ============================================================ */
 
 "use strict";
+
+const REDUCED_MOTION = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /* ---------- 1. 例会日の計算 ---------- */
 
@@ -91,6 +96,14 @@ setInterval(updateCountdown, 30000);
 })();
 
 /* ---------- 3. スクロール出現アニメーション ---------- */
+
+// グリッド内の要素に時間差をつけて、順番にふわっと現れるようにする
+document.querySelectorAll(".cards-grid, .stats, .gallery-grid, .compare-grid").forEach((grid) => {
+  Array.from(grid.children).forEach((el, i) => {
+    el.style.transitionDelay = `${Math.min(i * 0.1, 0.5)}s`;
+  });
+});
+
 const observer = new IntersectionObserver(
   (entries) => {
     entries.forEach((e) => {
@@ -126,17 +139,54 @@ const counterObserver = new IntersectionObserver(
 );
 counters.forEach((el) => counterObserver.observe(el));
 
-/* ---------- 4. ギャラリー ライトボックス ---------- */
+/* ---------- 4. ビフォー/アフター比較スライダー ---------- */
+document.querySelectorAll(".compare").forEach((box) => {
+  const range = box.querySelector(".compare-range");
+  if (!range) return;
+  let interacted = false;
+
+  const setPos = (v) => box.style.setProperty("--pos", `${v}%`);
+  range.addEventListener("input", () => {
+    interacted = true;
+    setPos(range.value);
+  });
+  setPos(range.value);
+
+  // 初回表示時にハンドルを軽く往復させて操作できることを示す
+  if (!REDUCED_MOTION) {
+    const demoObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        demoObserver.unobserve(box);
+        const start = performance.now();
+        const dur = 1800;
+        (function swing(t) {
+          if (interacted) return;
+          const p = Math.min((t - start) / dur, 1);
+          const v = 50 + Math.sin(p * Math.PI * 2) * 22 * (1 - p);
+          range.value = String(v);
+          setPos(v);
+          if (p < 1) requestAnimationFrame(swing);
+        })(start);
+      });
+    }, { threshold: 0.6 });
+    demoObserver.observe(box);
+  }
+});
+
+/* ---------- 5. ギャラリー ライトボックス ---------- */
 const lightbox = document.getElementById("lightbox");
 const lightboxBody = document.getElementById("lightboxBody");
 const lightboxCaption = document.getElementById("lightboxCaption");
 
 document.querySelectorAll(".gallery-item").forEach((item) => {
   item.addEventListener("click", () => {
-    const visual = item.querySelector(".ph, img");
+    const visual = item.querySelector("img");
     if (!visual || !lightbox) return;
     lightboxBody.innerHTML = "";
-    lightboxBody.appendChild(visual.cloneNode(true));
+    const clone = visual.cloneNode(true);
+    clone.style.transform = "";
+    lightboxBody.appendChild(clone);
     lightboxCaption.textContent = item.dataset.title || "";
     lightbox.classList.add("open");
     document.body.style.overflow = "hidden";
@@ -152,11 +202,10 @@ document.getElementById("lightboxClose")?.addEventListener("click", closeLightbo
 lightbox?.addEventListener("click", (e) => { if (e.target === lightbox) closeLightbox(); });
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeLightbox(); });
 
-/* ---------- 5. ヒーロー粒子アニメーション ---------- */
+/* ---------- 6. ヒーロー粒子アニメーション（マウス連動） ---------- */
 (function heroParticles() {
   const canvas = document.getElementById("heroCanvas");
   if (!canvas) return;
-  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const ctx = canvas.getContext("2d");
   let w, h, particles;
 
@@ -169,6 +218,8 @@ document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeLight
 
   const COLORS = ["56,189,248", "167,139,250", "244,114,182"];
   const COUNT = Math.min(70, Math.floor(window.innerWidth / 18));
+  const LINK_DIST = 130;
+  const MOUSE_DIST = 170;
 
   particles = Array.from({ length: COUNT }, () => ({
     x: Math.random() * w,
@@ -179,6 +230,18 @@ document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeLight
     c: COLORS[Math.floor(Math.random() * COLORS.length)],
   }));
 
+  // マウス位置（ヒーロー外に出たら遠くへ）
+  const mouse = { x: -9999, y: -9999 };
+  const hero = canvas.closest(".hero");
+  hero?.addEventListener("pointermove", (e) => {
+    const rect = canvas.getBoundingClientRect();
+    mouse.x = e.clientX - rect.left;
+    mouse.y = e.clientY - rect.top;
+  });
+  hero?.addEventListener("pointerleave", () => {
+    mouse.x = -9999; mouse.y = -9999;
+  });
+
   function draw() {
     ctx.clearRect(0, 0, w, h);
     // 接続線
@@ -187,8 +250,8 @@ document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeLight
         const a = particles[i], b = particles[j];
         const dx = a.x - b.x, dy = a.y - b.y;
         const dist = Math.hypot(dx, dy);
-        if (dist < 130) {
-          ctx.strokeStyle = `rgba(${a.c},${(1 - dist / 130) * 0.22})`;
+        if (dist < LINK_DIST) {
+          ctx.strokeStyle = `rgba(${a.c},${(1 - dist / LINK_DIST) * 0.22})`;
           ctx.lineWidth = 1;
           ctx.beginPath();
           ctx.moveTo(a.x, a.y);
@@ -197,8 +260,28 @@ document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeLight
         }
       }
     }
-    // 粒子
+    // 粒子（マウスに近いものは軽く反発し、線でつながる）
     particles.forEach((p) => {
+      const mdx = p.x - mouse.x, mdy = p.y - mouse.y;
+      const mdist = Math.hypot(mdx, mdy);
+      if (mdist < MOUSE_DIST) {
+        ctx.strokeStyle = `rgba(${p.c},${(1 - mdist / MOUSE_DIST) * 0.5})`;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        ctx.lineTo(mouse.x, mouse.y);
+        ctx.stroke();
+        if (mdist > 0.001) {
+          p.vx += (mdx / mdist) * 0.05;
+          p.vy += (mdy / mdist) * 0.05;
+        }
+      }
+      // 速度が上がりすぎないよう抑える
+      const speed = Math.hypot(p.vx, p.vy);
+      if (speed > 0.9) {
+        p.vx = (p.vx / speed) * 0.9;
+        p.vy = (p.vy / speed) * 0.9;
+      }
       ctx.fillStyle = `rgba(${p.c},0.8)`;
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
@@ -207,12 +290,55 @@ document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeLight
       if (p.x < 0 || p.x > w) p.vx *= -1;
       if (p.y < 0 || p.y > h) p.vy *= -1;
     });
-    if (!reduced) requestAnimationFrame(draw);
+    if (!REDUCED_MOTION) requestAnimationFrame(draw);
   }
   draw();
 })();
 
-/* ---------- 6. モバイルメニュー / トップへ戻る / 年表示 ---------- */
+/* ---------- 7. ヘッダー演出・スクロール進捗・ナビ現在地 ---------- */
+const siteHeader = document.getElementById("siteHeader");
+const scrollProgress = document.getElementById("scrollProgress");
+const toTop = document.getElementById("toTop");
+
+window.addEventListener("scroll", () => {
+  const y = window.scrollY;
+  siteHeader?.classList.toggle("scrolled", y > 30);
+  toTop?.classList.toggle("show", y > 600);
+  if (scrollProgress) {
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    scrollProgress.style.width = max > 0 ? `${(y / max) * 100}%` : "0";
+  }
+}, { passive: true });
+
+// 表示中のセクションに対応するナビリンクを強調
+(function scrollSpy() {
+  const links = document.querySelectorAll(".global-nav a[href^='#']");
+  if (!links.length) return;
+  const map = new Map();
+  links.forEach((a) => {
+    const sec = document.querySelector(a.getAttribute("href"));
+    if (sec) map.set(sec, a);
+  });
+  const spy = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      links.forEach((a) => a.classList.remove("active"));
+      map.get(entry.target)?.classList.add("active");
+    });
+  }, { rootMargin: "-40% 0px -55% 0px" });
+  map.forEach((_, sec) => spy.observe(sec));
+})();
+
+/* ---------- 8. カードのマウス追従グロー ---------- */
+document.querySelectorAll(".card, .stat-card").forEach((el) => {
+  el.addEventListener("pointermove", (e) => {
+    const rect = el.getBoundingClientRect();
+    el.style.setProperty("--mx", `${e.clientX - rect.left}px`);
+    el.style.setProperty("--my", `${e.clientY - rect.top}px`);
+  });
+});
+
+/* ---------- 9. モバイルメニュー / トップへ戻る / 年表示 ---------- */
 const navToggle = document.getElementById("navToggle");
 const globalNav = document.getElementById("globalNav");
 navToggle?.addEventListener("click", () => {
@@ -223,10 +349,6 @@ globalNav?.querySelectorAll("a").forEach((a) =>
   a.addEventListener("click", () => globalNav.classList.remove("open"))
 );
 
-const toTop = document.getElementById("toTop");
-window.addEventListener("scroll", () => {
-  toTop?.classList.toggle("show", window.scrollY > 600);
-});
 toTop?.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
 
 const yearEl = document.getElementById("year");
